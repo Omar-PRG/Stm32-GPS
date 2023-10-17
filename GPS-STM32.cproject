@@ -1,0 +1,127 @@
+#include <LiquidCrystal.h>                          
+
+#include <TinyGPS++.h>         
+
+
+const int rs = PB11, en = PB10, d4 = PB0, d5 = PB1, d6 = PC13, d7 = PC14;  //LCD pins connected with STM32
+
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+
+TinyGPSPlus gps;               //Object gps for class TinyGPSPlus
+
+
+void setup()
+
+{
+
+  Serial1.begin(9600);        
+  lcd.begin(16,2);             
+  lcd.print("Circuit Digest");
+  lcd.setCursor(0,1);
+  lcd.print("STM32 with GPS");
+  delay(2000);
+  lcd.clear();      
+
+}
+
+void loop()
+
+{
+
+  GPSDelay(1000);
+
+  unsigned long start;
+
+  double lat, lng;
+
+  bool loc;
+
+  lat = gps.location.lat();        
+
+  loc = gps.location.isValid(); 
+
+  lng = gps.location.lng();        
+
+ 
+
+  if (!loc_valid)                     
+  {
+
+    lcd.print("Waiting");
+
+    Serial.print("Latitude : ");
+
+    Serial.println("*****");
+
+    Serial.print("Longitude : ");
+
+    Serial.println("*****");
+
+    delay(4000);
+
+    lcd.clear();
+
+  }
+
+  else                              
+
+  {
+
+    lcd.clear();
+
+    
+
+    Serial.println("READINGS: ");
+
+   
+
+    Serial.print("Latitude : ");
+
+    Serial.println(lat, 6);  
+
+   
+
+    lcd.setCursor(0,0);
+
+    lcd.print("LAT:");
+
+    lcd.print(lat,6);         
+
+
+    Serial.print("Longitude : ");
+
+    Serial.println(lng, 6);   
+
+    lcd.setCursor(0,1);
+
+    lcd.print("Longitude:");
+
+    lcd.print(lng,6);         
+
+
+    delay(4000);
+
+  }
+
+}
+
+
+static void GPSDelay(unsigned long ms)          
+
+{
+
+  unsigned long start = millis();
+
+  do
+
+  {
+
+    while (Serial1.available()) 
+
+    gps.encode(Serial1.read());
+
+  } while (millis() - start < ms);
+
+}
+
